@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.2] - 2026-11-02
+
+### Fixed
+
+- 封面与表格使用同一次测量：身高/体重取最近一条，此前封面取首条、表格取日均值，
+  会显示成 168 与 170 两个数字。
+- 未测量项（血压、体温）不再标成「参考」，改为「未检测」。
+- 听力暴露按 WHO-ITU 周剂量计算，不再固定标「需关注」。
+- 报告改为按性别与年龄查 FRIEND 百分位，VO₂max、腰围不再写死男性标准。
+- 步数补充设备口径说明：手表佩戴期与仅 iPhone 记录期分别给出日均值。
+- XLSX 概览的单位由 `count` 改为「步」等中文单位。
+
 ## [0.1.1] - 2026-11-02
 
 ### Added

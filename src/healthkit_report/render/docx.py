@@ -336,6 +336,12 @@ def _row_values(findings: Dict, profile: Dict) -> Dict[str, Tuple[Optional[float
             None,
             f"≥80 dB {audio['hours_ge_80']:.0f} 小时 / ≥90 dB {audio['hours_ge_90']:.0f} 小时",
         )
+    # 身高/体重必须和封面一致：封面取最近一条，表格若用日均值就会对不上。
+    if profile.get("height_cm"):
+        values["height"] = (profile["height_cm"], f"{profile['height_cm']:.0f} cm")
+    if profile.get("weight_kg"):
+        values["weight"] = (profile["weight_kg"], f"{profile['weight_kg']:.1f} kg")
+
     for key in ("waist", "bp", "temp"):
         values.setdefault(key, (None, "未检测"))
     workouts = findings.get("workouts", {})
@@ -372,17 +378,35 @@ def _interpretation(findings: Dict, refs: Dict[str, Reference]) -> Dict[str, str
         )
     vo2 = metrics.get("vo2max")
     if vo2:
+        ref = refs.get("vo2max")
+        bound = f"；参考下限为{ref.text}" if ref and ref.low is not None else ""
+        if ref and ref.low is not None and vo2["mean"] < ref.low:
+            verdict = "是本次最需要投入的指标：它对有氧训练量非常敏感，8–12 周的系统训练通常能提升 3–5 点。"
+        else:
+            verdict = ("高于同龄第 25 百分位，仍有提升空间：它对有氧训练量非常敏感，"
+                       "系统训练 8–12 周通常能提升 3–5 点。")
         paragraphs["vo2"] = (
-            f"VO₂max 估算 {vo2['mean']:.1f} mL/min·kg（范围 {vo2['min']:.1f}–{vo2['max']:.1f}），"
-            "是本次最需要投入的指标：它对有氧训练量非常敏感，8–12 周的系统训练通常能提升 3–5 点。"
+            f"VO₂max 估算 {vo2['mean']:.1f} mL/min·kg（范围 {vo2['min']:.1f}–{vo2['max']:.1f}{bound}），"
+            + verdict
         )
     steps = metrics.get("steps")
     if steps:
         dist = findings.get("steps_distribution", {})
+        coverage = findings.get("coverage", {})
+        watch_mean = coverage.get("steps_watch_mean")
+        phone_mean = coverage.get("steps_phone_only_mean")
+        channel = ""
+        if watch_mean and phone_mean and coverage.get("days_with_heart_rate", 0) < 0.5 * coverage.get("days", 0):
+            channel = (
+                f" 注：{coverage['days_with_heart_rate']} 天手表佩戴期日均 {watch_mean:,.0f} 步；"
+                f"其余仅 iPhone 记录的日期日均 {phone_mean:,.0f} 步，手机未随身时会漏计，"
+                "故全时段均值偏低。"
+            )
         paragraphs["steps"] = (
             f"日均 {steps['mean']:,.0f} 步（中位 {steps['median']:,.0f}），"
             f"{dist.get('ge_10000', 0) * 100:.0f}% 的天数 ≥1 万步，"
             f"{dist.get('lt_5000', 0) * 100:.0f}% 不足 5,000 步，活动量两极分化。"
+            + channel
         )
     return paragraphs
 
@@ -398,7 +422,8 @@ def build_report(
 ) -> str:
     profile = profile_from_dataset(dataset)
     profile["name"] = name or profile.get("name") or ""
-    refs = {ref.key: ref for ref in (references or default_references())}
+    refs = {ref.key: ref for ref in (
+        references or default_references(sex=profile.get("sex", ""), age=profile.get("age")))}
     if profile.get("height_cm"):
         height_m = profile["height_cm"] / 100.0
         low, high = 18.5 * height_m ** 2, 23.9 * height_m ** 2
@@ -468,7 +493,7 @@ def build_report(
     run = first.add_run("本次数据回顾未见急性异常，生命体征总体平稳；主要问题为可干预的功能性指标。")
     builder.font(run, 10.5, False, DARK)
 
-    attention = [row for row in _grade_rows(refs, values) if row["severity"] >= 2]
+    attention = [row for row in _grade_rows(refs, values, findings) if row["severity"] >= 2]
     for label, text, color in (
         ("近 3 个月趋势  ", _trend_sentence(findings), GREEN),
         ("需要重点关注  ", "；".join(row["label"] for row in attention[:4]) or "无", AMBER),
@@ -511,7 +536,7 @@ def build_report(
 
     # ---------------- results table ----------------
     builder.H("检查结果总表", "三")
-    rows = _grade_rows(refs, values)
+    rows = _grade_rows(refs, values, findings)
     measured = [row for row in rows if row["value"] != "未检测"]
     builder.P(f"本次共呈现 {len(measured)} 项指标，其中 {len(attention)} 项需关注；"
               f"另有 {len(rows) - len(measured)} 项因设备限制未检测，见第七节。", 9, False, GRAY, after=5)
@@ -621,8 +646,7 @@ def build_report(
               8.5, False, RED, before=6)
 
     # ---------------- plan ----------------
-    builder.doc.add_page_break()
-    builder.H("健康管理处方", "六", before=0)
+    builder.H("健康管理处方", "六", before=10)
     builder.P("按时间优先级排列，先做前两条，其余自然带动。", 9, False, GRAY)
     for phase, items in _plan(findings).items():
         paragraph = builder.P("", after=4, before=6)
@@ -632,9 +656,11 @@ def build_report(
             builder.bullet(title + "：", desc)
 
     # ---------------- gaps ----------------
-    builder.H("本次未覆盖的检查项目", "七")
+    builder.doc.add_page_break()
+    builder.H("本次未覆盖的检查项目", "七", before=0)
     builder.P("可穿戴设备只能反映连续、无创、可自测的生理信号。以下项目必须由医疗机构完成：", after=4)
     gaps = builder.table(4, 4, [5.2, 3.1, 5.2, 3.1])
+    builder.repeat_header(gaps)
     for row_index, row in enumerate([("血压 / 血管弹性", "未检测", "血常规 / 血型", "未检测"),
                                      ("肝功能 / 肾功能", "未检测", "血脂 / 血糖", "未检测"),
                                      ("甲状腺功能", "未检测", "尿常规", "未检测"),
@@ -681,7 +707,25 @@ def build_report(
     return path
 
 
-def _grade_rows(refs: Dict[str, Reference], values: Dict[str, Tuple[Optional[float], str]]) -> List[Dict]:
+def _audio_grade(findings: Dict) -> str:
+    """Grade cumulative headphone exposure against the WHO-ITU weekly allowance."""
+
+    audio = findings.get("audio", {}).get("hp_audio") or {}
+    days = (findings.get("coverage") or {}).get("days_with_heart_rate") or 0
+    if not audio or not days:
+        return "参考"
+    weeks = max(days / 7.0, 1.0)
+    weekly_80 = audio.get("hours_ge_80", 0.0) / weeks
+    weekly_90 = audio.get("hours_ge_90", 0.0) / weeks
+    if weekly_80 > 40 or weekly_90 > 4:
+        return "需关注"
+    if weekly_80 > 30 or weekly_90 > 3:
+        return "临界"
+    return NORMAL
+
+
+def _grade_rows(refs: Dict[str, Reference], values: Dict[str, Tuple[Optional[float], str]],
+                findings: Optional[Dict] = None) -> List[Dict]:
     rows = []
     for key, ref in refs.items():
         if key not in values:
@@ -690,7 +734,9 @@ def _grade_rows(refs: Dict[str, Reference], values: Dict[str, Tuple[Optional[flo
         if key == "bed_time":
             grade = "参考"
         elif key == "audio_exposure":
-            grade = "需关注"
+            grade = _audio_grade(findings or {})
+        elif value is None:
+            grade = "未检测"
         elif ref.low is None and ref.high is None and ref.caution_high is None and ref.caution_low is None:
             grade = "参考"
         else:

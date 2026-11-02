@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "healthkit-report"
-version = "0.1.1"
+version = "0.1.2"
 description = "Parse Apple Health exports, de-duplicate multi-device records, and generate health reports (DOCX / XLSX / HTML)."
 readme = "README.md"
 requires-python = ">=3.9"

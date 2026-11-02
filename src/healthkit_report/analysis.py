@@ -283,11 +283,17 @@ def analyze(dataset: Dict) -> Dict:
 
     # ---- coverage ----------------------------------------------------------
     watch_days = sum(1 for record in daily.values() if record.get("hr_n"))
+    watch_steps = [r["steps"] for r in daily.values() if r.get("hr_n") and "steps" in r]
+    phone_steps = [r["steps"] for r in daily.values() if not r.get("hr_n") and "steps" in r]
     findings["coverage"] = {
         "days": len(daily),
         "days_with_heart_rate": watch_days,
         "first_watch_day": min((d for d, r in daily.items() if r.get("hr_n")), default=None),
         "metrics": {key: len([d for d, r in daily.items() if key in r]) for key in METRICS},
+        # Steps/day split by device coverage: iPhone-only days (phone not always carried)
+        # systematically undercount steps, so the whole-span mean underestimates habit.
+        "steps_watch_mean": sum(watch_steps) / len(watch_steps) if watch_steps else None,
+        "steps_phone_only_mean": sum(phone_steps) / len(phone_steps) if phone_steps else None,
     }
     findings["steps_distribution"] = _distribution(daily, "steps")
     findings["extreme_days"] = {

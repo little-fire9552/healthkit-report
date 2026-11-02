@@ -2,10 +2,29 @@
 
 from __future__ import annotations
 
+import os
 from datetime import date
 from typing import Dict
 
 import xlsxwriter
+
+#: HealthKit units → 中文单位（与 DOCX 报告保持一致）。
+UNIT_ZH = {
+    "count": "步",
+    "min": "分钟",
+    "breaths/min": "次/分",
+    "bpm": "bpm",
+    "ms": "ms",
+    "%": "%",
+    "km": "km",
+    "km/h": "km/h",
+    "mL/min/kg": "mL/min·kg",
+    "dB": "dB",
+    "cm": "cm",
+    "h": "小时",
+    "kg": "kg",
+    "kcal": "kcal",
+}
 
 COLUMNS = [
     ("日期", "date", 11),
@@ -59,7 +78,7 @@ def build_workbook(dataset: Dict, findings: Dict, path: str, *, name: str = "") 
     sheet.set_column("B:B", 72)
     sheet.write(0, 0, "健康数据概览", titlef)
     rows = [
-        ("数据来源", meta.get("source_path", "")),
+        ("数据来源", os.path.basename(meta.get("source_path", "export.xml"))),
         ("导出时间", meta.get("export_date") or "—"),
         ("数据区间", f"{span['first']} 至 {span['last']}（{span['days']} 天）"),
         ("记录总数", f"{meta.get('record_count', 0):,} 条"),
@@ -70,7 +89,16 @@ def build_workbook(dataset: Dict, findings: Dict, path: str, *, name: str = "") 
     for key, label in (("steps", "平均每日步数"), ("resting_hr", "平均静息心率"),
                        ("hrv", "平均 HRV（SDNN）"), ("vo2max", "VO₂max 估算")):
         if key in metrics:
-            rows.append((label, f"{metrics[key]['mean']:.1f} {metrics[key].get('unit', '')}".strip()))
+            record = metrics[key]
+            unit = UNIT_ZH.get(record.get("unit", ""), record.get("unit", ""))
+            rows.append((label, f"{record['mean']:,.{record.get('digits', 0)}f} {unit}".strip()))
+    coverage = findings.get("coverage", {})
+    if (coverage.get("steps_watch_mean") and coverage.get("steps_phone_only_mean")
+            and coverage.get("days_with_heart_rate", 0) < 0.5 * coverage.get("days", 0)):
+        rows.append(("步数口径", (
+            f"手表佩戴 {coverage['days_with_heart_rate']} 天日均 "
+            f"{coverage['steps_watch_mean']:,.0f} 步；其余仅 iPhone 记录的日期日均 "
+            f"{coverage['steps_phone_only_mean']:,.0f} 步（手机未随身会漏计）")))
     sleep = findings.get("sleep", {})
     if sleep:
         rows.append(("平均睡眠", f"{sleep['mean']:.2f} 小时/夜（{sleep['n']} 夜）"))

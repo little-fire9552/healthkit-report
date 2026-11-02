@@ -70,9 +70,38 @@ class Reference:
 
 GROUPS = ["一般情况", "生命体征", "心血管功能", "心肺适能", "睡眠", "活动与生活方式", "听力", "步态与运动功能"]
 
+#: 25th percentile of V̇O2max (mL·kg⁻¹·min⁻¹) from the FRIEND treadmill cohort,
+#: keyed by sex and the lower bound of each age decade (Kaminsky et al., 2015).
+FRIEND_P25: Dict[tuple, float] = {
+    ("男", 20): 40.1, ("男", 30): 35.9, ("男", 40): 31.9,
+    ("男", 50): 27.1, ("男", 60): 23.7, ("男", 70): 20.4,
+    ("女", 20): 30.5, ("女", 30): 25.3, ("女", 40): 22.1,
+    ("女", 50): 19.9, ("女", 60): 17.2, ("女", 70): 15.6,
+}
 
-def default_references() -> List[Reference]:
-    """The reference table shipped with the package."""
+
+def friend_p25(sex: str, age: Optional[int]) -> Optional[float]:
+    """FRIEND 25th-percentile V̇O2max for a sex/age pair (None if unknown)."""
+
+    if sex not in ("男", "女") or age is None:
+        return None
+    decade = 20 + max(0, min(5, (age - 20) // 10)) * 10
+    return FRIEND_P25.get((sex, decade))
+
+
+def default_references(sex: str = "", age: Optional[int] = None) -> List[Reference]:
+    """The reference table shipped with the package.
+
+    Sex- and age-dependent rows (waist circumference, V̇O2max) are personalised
+    when ``sex``/``age`` are supplied; otherwise neutral defaults are kept.
+    """
+
+    vo2_low, vo2_text = 40.1, "成人第 25 百分位 40.1"
+    percentile = friend_p25(sex, age)
+    if percentile is not None:
+        vo2_low = percentile
+        vo2_text = f"同龄{sex}性第 25 百分位 {percentile:.1f}"
+    waist_high, waist_text = (85, "女 <85 cm") if sex == "女" else (90, "男 <90 cm")
 
     return [
         Reference(
@@ -90,7 +119,8 @@ def default_references() -> List[Reference]:
             advice="保持在 18.5–23.9 之间。",
         ),
         Reference("waist", "腰围", "Waist circumference", "一般情况", "cm",
-                  high=90, text="男 <90 cm", source="中国成人中心性肥胖标准", digits=0),
+                  high=waist_high, text=waist_text,
+                  source="中国成人中心性肥胖标准", digits=0),
         Reference(
             "resting_hr", "静息心率", "Resting heart rate", "生命体征", "bpm",
             low=60, high=100, text="60–100 次/分", source="成人静息心率常用区间", digits=0,
@@ -127,7 +157,7 @@ def default_references() -> List[Reference]:
         ),
         Reference(
             "vo2max", "VO₂max 估算", "VO₂ max estimate", "心肺适能", "mL/min/kg",
-            low=40.1, text="同龄男性第 25 百分位 40.1", source="FRIEND / Apple 心肺适能",
+            low=vo2_low, text=vo2_text, source="FRIEND / Apple 心肺适能",
             digits=1, advice="每周 3 次 30 分钟低强度有氧，8 周后复测。",
         ),
         Reference(
@@ -215,10 +245,12 @@ def profile_from_dataset(dataset: Dict) -> Dict:
     sex = {"HKBiologicalSexMale": "男", "HKBiologicalSexFemale": "女"}.get(sex_raw, "未填写")
     weight = None
     height = None
-    for record in dataset.get("daily", {}).values():
-        if weight is None and "weight" in record:
+    # Latest measurement wins: earlier records may be stale (e.g. height 167 -> 168).
+    for day in sorted(dataset.get("daily", {})):
+        record = dataset["daily"][day]
+        if "weight" in record:
             weight = record["weight"]
-        if height is None and "height" in record:
+        if "height" in record:
             height = record["height"]
     return {
         "name": "",

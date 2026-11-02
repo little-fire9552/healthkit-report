@@ -99,3 +99,24 @@ class RendererTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class MeasurementConsistencyTests(unittest.TestCase):
+    """封面和表格必须使用同一次测量（最近一条），否则报告自相矛盾。"""
+
+    def test_table_height_matches_profile(self):
+        from healthkit_report.render.docx import _row_values
+
+        findings = {"metrics": {"height": {"mean": 170.0, "unit": "cm", "digits": 0}}}
+        profile = {"height_cm": 168.0, "weight_kg": 69.4}
+        values = _row_values(findings, profile)
+        self.assertEqual(values["height"][0], 168.0)
+        self.assertEqual(values["weight"][0], 69.4)
+
+    def test_vo2max_threshold_depends_on_sex_and_age(self):
+        from healthkit_report.references import default_references
+
+        male_21 = {r.key: r for r in default_references(sex="男", age=21)}["vo2max"]
+        female_21 = {r.key: r for r in default_references(sex="女", age=21)}["vo2max"]
+        self.assertEqual(male_21.grade(33.7), "偏低")
+        self.assertEqual(female_21.grade(33.7), "正常")

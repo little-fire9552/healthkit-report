@@ -105,10 +105,17 @@ def build_dashboard(
     chart = line_chart(list(zip(calendar, steps_smooth)), title="步数 7 日均线", ylabel="步/日",
                        color=PALETTE[0])
     dist = findings.get("steps_distribution", {})
+    coverage = findings.get("coverage", {})
+    steps_note = ""
+    if (coverage.get("steps_watch_mean") and coverage.get("steps_phone_only_mean")
+            and coverage.get("days_with_heart_rate", 0) < 0.5 * coverage.get("days", 0)):
+        steps_note = (f" 手表佩戴期日均 {coverage['steps_watch_mean']:,.0f} 步，"
+                      f"仅 iPhone 记录的日期日均 {coverage['steps_phone_only_mean']:,.0f} 步"
+                      "（手机未随身会漏计）。")
     sections.append(_section(
         "步数",
-        f"日均 {steps['mean']:,.0f} 步，{dist.get('ge_10000', 0) * 100:.0f}% 的天数过万，"
-        f"{dist.get('lt_5000', 0) * 100:.0f}% 的天数不足 5,000。" if steps else "无步数数据",
+        (f"日均 {steps['mean']:,.0f} 步，{dist.get('ge_10000', 0) * 100:.0f}% 的天数过万，"
+         f"{dist.get('lt_5000', 0) * 100:.0f}% 的天数不足 5,000。{steps_note}") if steps else "无步数数据",
         chart,
     ))
 
