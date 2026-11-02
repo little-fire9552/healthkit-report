@@ -1,5 +1,6 @@
 import { execFile } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
+import { homedir } from "node:os";
 import { delimiter, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineTool } from "@deepseek-ai/dsh-tools";
@@ -53,7 +54,9 @@ function buildArgs(args) {
  * install python-docx into without fighting macOS's system Python.
  */
 function defaultPython() {
-  const home = process.env.DSH_HOME;
+  // The Electron main process does not always export DSH_HOME, so fall back to
+  // the documented default location instead of trusting PATH.
+  const home = process.env.DSH_HOME || join(homedir(), ".dsh");
   if (home) {
     try {
       const root = join(home, "dsh-runtimes");
