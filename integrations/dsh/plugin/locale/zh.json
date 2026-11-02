@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Apple 健康报告",
+    "description": "解析 Apple 健康导出，按设备去重后生成体检报告（DOCX / XLSX / HTML）。"
+  }
+}

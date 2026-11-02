@@ -1,0 +1,5 @@
+# healthkit-report bundle patch.
+# Inserts one Host tool plugin; the tool itself shells out to the Python package.
+- insert:
+    - id: healthkit-report
+      name: '@local/healthkit-report'

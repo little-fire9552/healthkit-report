@@ -148,6 +148,20 @@ build_report(dataset, findings, "report.docx", name="张三")
 
 步数、步行/跑步距离、骑行距离、活动能量、静息能量、爬楼、锻炼时间、站立时间、日照时间、心率、静息心率、步行心率、HRV(SDNN)、心率恢复、呼吸频率、血氧、体重、身高、BMI、VO₂max、手腕温度、步行速度、步长、双支撑、不对称、步行稳定性、环境噪声、耳机音量、跑步速度/功率/步幅/垂直振幅/触地时间，以及睡眠分期。
 
+
+## 在 DeepSeek Harness 中使用
+
+本项目自带两种 DSH 接入方式，见 [docs/dsh-plugin.md](docs/dsh-plugin.md)：
+
+- **技能（推荐先做）**：把 [`integrations/dsh/skill/SKILL.md`](integrations/dsh/skill/SKILL.md)
+  放进 `<项目>/.dsh/skills/healthkit-report/` 或 `~/.dsh/skills/`，DSH 会自动发现，无需重启。
+- **插件包**：[`integrations/dsh/plugin/`](integrations/dsh/plugin/) 是一个最小 bundle，
+  注册 `healthkit_report` 工具，通过 DSH 的 Plugins 页面安装。
+
+```text
+healthkit_report action=all export=/path/to/export.xml out=out
+```
+
 ## 已知限制
 
 - **设备更换会造成趋势断裂**：没有手表的那段时间没有心率、HRV、睡眠；iPhone 单独计步会系统性偏低。

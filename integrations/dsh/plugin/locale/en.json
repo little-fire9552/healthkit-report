@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Apple Health Report",
+    "description": "Parse an Apple Health export, de-duplicate device records and build DOCX / XLSX / HTML reports."
+  }
+}
