@@ -180,7 +180,7 @@ def multi_line_chart(
         out.append(f'<text x="{x_at(i):.1f}" y="{height - 10}" text-anchor="middle" class="xlab">'
                    f'{esc(_fmt_date(dates[i][0]))}</text>')
 
-    for name, color, points in aligned:
+    for _name, color, points in aligned:
         segment: List[Tuple[float, float]] = []
 
         def flush(segment=segment, color=color) -> None:

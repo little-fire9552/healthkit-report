@@ -7,7 +7,6 @@ from typing import Dict
 
 import xlsxwriter
 
-
 COLUMNS = [
     ("日期", "date", 11),
     ("步数", "steps", 9),
@@ -121,7 +120,7 @@ def build_workbook(dataset: Dict, findings: Dict, path: str, *, name: str = "") 
                        "锻炼分钟/日", "静息心率", "HRV ms", "睡眠 h", "步行速度 km/h"]
     keys = ["month", "days", "steps", "walk_dist", "active_energy", "exercise_min",
             "resting_hr", "hrv", "sleep_h", "walk_speed"]
-    for column, (label, key) in enumerate(zip(monthly_columns, keys)):
+    for column, label in enumerate(monthly_columns):
         monthly_sheet.write(0, column, label, header)
         monthly_sheet.set_column(column, column, 14)
     for row, (month, record) in enumerate(sorted(findings.get("monthly", {}).items()), start=1):

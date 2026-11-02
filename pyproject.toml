@@ -55,5 +55,12 @@ healthkit_report = ["py.typed"]
 line-length = 110
 target-version = "py39"
 
+# A pragmatic rule set: real errors, import order, and a few bug-prone patterns.
+# Typing-modernisation rules (UP) are intentionally off: the package supports 3.9
+# and keeps typing.* names so the code reads the same on every version.
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "B", "SIM"]
+ignore = ["E501"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

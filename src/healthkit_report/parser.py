@@ -62,8 +62,20 @@ def iter_elements(source, tags: Sequence[str]) -> Iterable[object]:
                 del parent[0]
 
 
+def parse_datetime(value: str) -> datetime:
+    """Parse Apple's ``YYYY-MM-DD HH:MM:SS +0800`` timestamps on every Python.
+
+    ``datetime.fromisoformat`` only accepts the ``+0800`` form from 3.11 on, so
+    fall back to ``strptime`` for older interpreters.
+    """
+    try:
+        return datetime.fromisoformat(value)
+    except ValueError:
+        return datetime.strptime(value, "%Y-%m-%d %H:%M:%S %z")
+
+
 def _ts(value: str) -> float:
-    return datetime.fromisoformat(value).timestamp()
+    return parse_datetime(value).timestamp()
 
 
 def _day(value: str) -> str:
@@ -225,7 +237,7 @@ def _finalize_daily(raw: Dict[str, Dict[str, list]]) -> Tuple[Dict[str, Dict[str
             if metric.is_sum:
                 cover = _Coverage()
                 total = 0.0
-                for start, end, value, rank, _hour in sorted(records, key=lambda r: (-r[3], r[0])):
+                for start, end, value, _rank, _hour in sorted(records, key=lambda r: (-r[3], r[0])):
                     end = max(end, start + 1.0)
                     already = cover.covered(start, end)
                     fraction = max(0.0, 1.0 - already / (end - start))
@@ -236,7 +248,7 @@ def _finalize_daily(raw: Dict[str, Dict[str, list]]) -> Tuple[Dict[str, Dict[str
                 # For rates/levels one sample per minute is enough; the best
                 # device wins so a third-party app cannot bias the mean.
                 seen: Dict[int, Tuple[float, str]] = {}
-                for start, end, value, rank, hour in sorted(records, key=lambda r: (-r[3], r[0])):
+                for start, _end, value, _rank, hour in sorted(records, key=lambda r: (-r[3], r[0])):
                     minute = int(round(start / 60.0))
                     if minute not in seen:
                         seen[minute] = (value, hour)
@@ -270,7 +282,7 @@ def _finalize_sleep(sleep_raw: List[Tuple[str, str, str, int]]) -> Dict[str, Dic
              "asleep": 0.0, "start": None, "end": None},
         )
         try:
-            hours = (datetime.fromisoformat(end) - datetime.fromisoformat(start)).total_seconds() / 3600.0
+            hours = (parse_datetime(end) - parse_datetime(start)).total_seconds() / 3600.0
         except ValueError:
             continue
         if value == SLEEP_INBED:
@@ -340,7 +352,9 @@ def parse_export(
     activity: List[Dict] = []
     devices: Dict[str, int] = {}
 
-    handle = open(path, "rb")
+    # Opened by hand on purpose: iterparse must stream while the file stays open,
+    # and the whole loop lives outside any `with` block.
+    handle = open(path, "rb")  # noqa: SIM115
     for el in iter_elements(handle, ("Record", "Workout", "ActivitySummary", "Me", "ExportDate")):
         tag = el.tag
         if tag == "Record":
@@ -369,7 +383,6 @@ def parse_export(
             meta["me"] = dict(el.attrib)
         elif tag == "ExportDate":
             meta["export_date"] = el.get("value")
-    handle.close()
 
     daily, hourly = _finalize_daily(into["records"])
     sleep = _finalize_sleep(into["sleep_raw"])

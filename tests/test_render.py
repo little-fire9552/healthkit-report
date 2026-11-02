@@ -62,6 +62,7 @@ class RendererTests(unittest.TestCase):
 
     def test_docx(self):
         from docx import Document
+
         from healthkit_report.render.docx import build_report
 
         path = os.path.join(self.tmp.name, "report.docx")

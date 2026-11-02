@@ -169,7 +169,7 @@ def analyze(dataset: Dict) -> Dict:
                 continue
             if key in METRICS or key in ("sleep_h", "deep_h", "rem_h", "core_h", "sleep_awake_h"):
                 bucket.setdefault(key, []).append(value)  # type: ignore[arg-type]
-    for month, bucket in monthly.items():
+    for bucket in monthly.values():
         for key in list(bucket):
             if isinstance(bucket[key], list):
                 bucket[key] = sum(bucket[key]) / len(bucket[key])
