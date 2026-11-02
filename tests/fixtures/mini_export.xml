@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HealthData locale="zh_CN">
+ <ExportDate value="2024-01-04 10:00:00 +0800"/>
+ <Me HKCharacteristicTypeIdentifierDateOfBirth="2000-05-01"
+     HKCharacteristicTypeIdentifierBiologicalSex="HKBiologicalSexMale"
+     HKCharacteristicTypeIdentifierBloodType="HKBloodTypeNotSet"
+     HKCharacteristicTypeIdentifierFitzpatrickSkinType="HKFitzpatrickSkinTypeNotSet"
+     HKCharacteristicTypeIdentifierCardioFitnessMedicationsUse="无"/>
+
+ <!-- ======================= 2024-01-01 ======================= -->
+ <!-- Watch counts 1000 steps in 10:00-10:20 -->
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="Alice&#39;s Apple Watch" unit="count"
+         startDate="2024-01-01 10:00:00 +0800" endDate="2024-01-01 10:10:00 +0800" value="600"/>
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="Alice&#39;s Apple Watch" unit="count"
+         startDate="2024-01-01 10:10:00 +0800" endDate="2024-01-01 10:20:00 +0800" value="400"/>
+ <!-- iPhone recorded the same walk (must be dropped) plus a walk the watch missed -->
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" unit="count"
+         startDate="2024-01-01 10:00:00 +0800" endDate="2024-01-01 10:10:00 +0800" value="590"/>
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" unit="count"
+         startDate="2024-01-01 10:10:00 +0800" endDate="2024-01-01 10:20:00 +0800" value="395"/>
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" unit="count"
+         startDate="2024-01-01 11:00:00 +0800" endDate="2024-01-01 11:10:00 +0800" value="500"/>
+
+ <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="Alice&#39;s Apple Watch" unit="Cal"
+         startDate="2024-01-01 00:00:00 +0800" endDate="2024-01-01 23:59:59 +0800" value="420"/>
+ <Record type="HKQuantityTypeIdentifierActiveEnergyBurned" sourceName="iPhone" unit="Cal"
+         startDate="2024-01-01 00:00:00 +0800" endDate="2024-01-01 23:59:59 +0800" value="410"/>
+
+ <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Alice&#39;s Apple Watch" unit="count/min"
+         startDate="2024-01-01 09:00:00 +0800" endDate="2024-01-01 09:00:00 +0800" value="60"/>
+ <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Alice&#39;s Apple Watch" unit="count/min"
+         startDate="2024-01-01 12:00:00 +0800" endDate="2024-01-01 12:00:00 +0800" value="80"/>
+ <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="Alice&#39;s Apple Watch" unit="count/min"
+         startDate="2024-01-01 18:00:00 +0800" endDate="2024-01-01 18:00:00 +0800" value="100"/>
+ <!-- duplicate HR from a third-party app, around the same minute -->
+ <Record type="HKQuantityTypeIdentifierHeartRate" sourceName="SomeApp" unit="count/min"
+         startDate="2024-01-01 18:00:20 +0800" endDate="2024-01-01 18:00:20 +0800" value="190"/>
+
+ <Record type="HKQuantityTypeIdentifierRestingHeartRate" sourceName="Alice&#39;s Apple Watch" unit="count/min"
+         startDate="2024-01-01 08:00:00 +0800" endDate="2024-01-01 08:00:00 +0800" value="58"/>
+ <Record type="HKQuantityTypeIdentifierHeartRateVariabilitySDNN" sourceName="Alice&#39;s Apple Watch" unit="ms"
+         startDate="2024-01-01 08:00:00 +0800" endDate="2024-01-01 08:00:00 +0800" value="46"/>
+ <Record type="HKQuantityTypeIdentifierOxygenSaturation" sourceName="Alice&#39;s Apple Watch" unit="%"
+         startDate="2024-01-01 03:00:00 +0800" endDate="2024-01-01 03:00:00 +0800" value="0.97"/>
+
+ <Record type="HKQuantityTypeIdentifierAppleExerciseTime" sourceName="Alice&#39;s Apple Watch" unit="min"
+         startDate="2024-01-01 18:00:00 +0800" endDate="2024-01-01 18:35:00 +0800" value="35"/>
+ <Record type="HKQuantityTypeIdentifierAppleStandTime" sourceName="Alice&#39;s Apple Watch" unit="min"
+         startDate="2024-01-01 08:00:00 +0800" endDate="2024-01-01 22:00:00 +0800" value="480"/>
+
+ <!-- ======================= night of 2024-01-01 ======================= -->
+ <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Alice&#39;s Apple Watch"
+         startDate="2024-01-01 23:30:00 +0800" endDate="2024-01-02 03:30:00 +0800"
+         value="HKCategoryValueSleepAnalysisAsleepCore"/>
+ <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Alice&#39;s Apple Watch"
+         startDate="2024-01-02 03:30:00 +0800" endDate="2024-01-02 04:30:00 +0800"
+         value="HKCategoryValueSleepAnalysisAsleepDeep"/>
+ <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Alice&#39;s Apple Watch"
+         startDate="2024-01-02 04:30:00 +0800" endDate="2024-01-02 06:00:00 +0800"
+         value="HKCategoryValueSleepAnalysisAsleepREM"/>
+ <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Alice&#39;s Apple Watch"
+         startDate="2024-01-01 23:00:00 +0800" endDate="2024-01-02 06:10:00 +0800"
+         value="HKCategoryValueSleepAnalysisInBed"/>
+
+ <!-- ======================= 2024-01-02 ======================= -->
+ <Record type="HKQuantityTypeIdentifierStepCount" sourceName="Alice&#39;s Apple Watch" unit="count"
+         startDate="2024-01-02 09:00:00 +0800" endDate="2024-01-02 09:30:00 +0800" value="3000"/>
+ <Record type="HKQuantityTypeIdentifierAppleExerciseTime" sourceName="Alice&#39;s Apple Watch" unit="min"
+         startDate="2024-01-02 07:00:00 +0800" endDate="2024-01-02 07:45:00 +0800" value="45"/>
+ <Record type="HKQuantityTypeIdentifierAppleStandTime" sourceName="Alice&#39;s Apple Watch" unit="min"
+         startDate="2024-01-02 08:00:00 +0800" endDate="2024-01-02 23:00:00 +0800" value="540"/>
+ <Record type="HKQuantityTypeIdentifierDistanceWalkingRunning" sourceName="Alice&#39;s Apple Watch" unit="km"
+         startDate="2024-01-02 09:00:00 +0800" endDate="2024-01-02 09:30:00 +0800" value="2.4"/>
+ <Record type="HKQuantityTypeIdentifierWalkingSpeed" sourceName="iPhone" unit="km/hr"
+         startDate="2024-01-02 09:00:00 +0800" endDate="2024-01-02 09:00:00 +0800" value="4.8"/>
+ <Record type="HKQuantityTypeIdentifierWalkingDoubleSupportPercentage" sourceName="iPhone" unit="%"
+         startDate="2024-01-02 09:00:00 +0800" endDate="2024-01-02 09:00:00 +0800" value="0.28"/>
+ <Record type="HKQuantityTypeIdentifierHeadphoneAudioExposure" sourceName="iPhone" unit="dBASPL"
+         startDate="2024-01-02 20:00:00 +0800" endDate="2024-01-02 21:00:00 +0800" value="85"/>
+ <Record type="HKQuantityTypeIdentifierHeadphoneAudioExposure" sourceName="iPhone" unit="dBASPL"
+         startDate="2024-01-02 21:00:00 +0800" endDate="2024-01-02 22:00:00 +0800" value="70"/>
+
+ <!-- ======================= workouts ======================= -->
+ <Workout workoutActivityType="HKWorkoutActivityTypeRunning" duration="30"
+          durationUnit="min" sourceName="Alice&#39;s Apple Watch"
+          startDate="2024-01-02 07:00:00 +0800" endDate="2024-01-02 07:30:00 +0800">
+  <WorkoutStatistics type="HKQuantityTypeIdentifierDistanceWalkingRunning"
+                     startDate="2024-01-02 07:00:00 +0800" endDate="2024-01-02 07:30:00 +0800"
+                     sum="5.0" unit="km"/>
+  <WorkoutStatistics type="HKQuantityTypeIdentifierActiveEnergyBurned"
+                     startDate="2024-01-02 07:00:00 +0800" endDate="2024-01-02 07:30:00 +0800"
+                     sum="300" unit="Cal"/>
+  <WorkoutStatistics type="HKQuantityTypeIdentifierHeartRate"
+                     startDate="2024-01-02 07:00:00 +0800" endDate="2024-01-02 07:30:00 +0800"
+                     average="150" minimum="120" maximum="170" unit="count/min"/>
+  <WorkoutStatistics type="HKQuantityTypeIdentifierStepCount"
+                     startDate="2024-01-02 07:00:00 +0800" endDate="2024-01-02 07:30:00 +0800"
+                     sum="4800" unit="count"/>
+ </Workout>
+ <Workout workoutActivityType="HKWorkoutActivityTypeCoreTraining" duration="3"
+          durationUnit="min" sourceName="NoiseApp"
+          startDate="2024-01-02 18:00:00 +0800" endDate="2024-01-02 18:03:00 +0800"/>
+
+ <!-- ======================= activity rings ======================= -->
+ <ActivitySummary dateComponents="2024-01-01"
+                  activeEnergyBurned="420" activeEnergyBurnedGoal="500"
+                  appleExerciseTime="35" appleExerciseTimeGoal="30"
+                  appleStandHours="10" appleStandHoursGoal="12"/>
+ <ActivitySummary dateComponents="2024-01-02"
+                  activeEnergyBurned="610" activeEnergyBurnedGoal="500"
+                  appleExerciseTime="45" appleExerciseTimeGoal="30"
+                  appleStandHours="12" appleStandHoursGoal="12"/>
+</HealthData>
