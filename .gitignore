@@ -16,3 +16,4 @@ out/
 *.docx
 *.xlsx
 !docs/**/*.docx
+integrations/dsh/plugin/python/

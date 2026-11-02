@@ -6,7 +6,8 @@
 
 ## 别人怎么用
 
-插件自带 Python 源码（`./python`），别人只需要装两个第三方库：
+本仓库已内置 Python 源码（`python/` 目录），别人**不需要**再装 healthkit-report 本体，
+只需要两个第三方库：
 
 ```bash
 python3 -m pip install python-docx XlsxWriter
