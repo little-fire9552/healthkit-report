@@ -1,5 +1,6 @@
 # healthkit-report bundle patch.
 # Inserts one Host tool plugin; the tool itself shells out to the Python package.
+# `name` must equal package.json's `name`.
 - insert:
     - id: healthkit-report
-      name: '@local/healthkit-report'
+      name: 'dsh-healthkit-report'

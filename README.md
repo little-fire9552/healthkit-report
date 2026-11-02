@@ -157,6 +157,7 @@ build_report(dataset, findings, "report.docx", name="张三")
   放进 `<项目>/.dsh/skills/healthkit-report/` 或 `~/.dsh/skills/`，DSH 会自动发现，无需重启。
 - **插件包**：[`integrations/dsh/plugin/`](integrations/dsh/plugin/) 是一个最小 bundle，
   注册 `healthkit_report` 工具，通过 DSH 的 Plugins 页面安装。
+  想分发给别人：[docs/publish.md](docs/publish.md)。
 
 ```text
 healthkit_report action=all export=/path/to/export.xml out=out
