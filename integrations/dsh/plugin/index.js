@@ -80,6 +80,27 @@ function pythonPath() {
   return parts.join(delimiter);
 }
 
+const MISSING_DEP = /No module named '(docx|healthkit_report|xlsxwriter)'/;
+
+/**
+ * Run with the preferred interpreter, then retry with the other likely one when
+ * the failure is only a missing package. Friends often pip-install into the
+ * system Python while the plugin prefers the interpreter bundled with DSH.
+ */
+async function runWithFallback(python, argv, options) {
+  const first = await runPython(python, argv, options);
+  if (first.exitCode === 0 || !MISSING_DEP.test(first.stderr)) return first;
+  for (const candidate of [defaultPython(), "python3"]) {
+    if (candidate === python) continue;
+    const retry = await runPython(candidate, argv, options);
+    if (retry.exitCode === 0) {
+      retry.stderr += `\n[fallback] 使用 ${candidate} 运行成功（首选解释器缺少依赖）`;
+      return retry;
+    }
+  }
+  return first;
+}
+
 function runPython(command, argv, { cwd, timeoutMs, signal }) {
   return new Promise((resolve, reject) => {
     const child = execFile(
@@ -184,7 +205,7 @@ function healthkitTool() {
     async execute(args, exec) {
       const { action, argv } = buildArgs(args);
       const python = args.python || process.env.HEALTHKIT_PYTHON || defaultPython();
-      const result = await runPython(python, argv, {
+      const result = await runWithFallback(python, argv, {
         cwd: args.cwd,
         timeoutMs: 30 * 60 * 1000,
         signal: exec?.signal,
