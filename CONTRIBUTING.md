@@ -5,7 +5,7 @@ Thanks for taking a look! Issues and pull requests are welcome.
 ## 开发环境
 
 ```bash
-git clone https://github.com/your-name/healthkit-report.git
+git clone https://github.com/little-fire9552/healthkit-report.git
 cd healthkit-report
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[fast,dev]"

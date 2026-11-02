@@ -28,4 +28,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - CLI with `parse`, `analyze`, `report` and `all` subcommands.
 - 27 unit tests covering parsing, de-duplication, analysis and renderers.
 
-[0.1.0]: https://github.com/your-name/healthkit-report/releases/tag/v0.1.0
+[0.1.0]: https://github.com/little-fire9552/healthkit-report/releases/tag/v0.1.0

@@ -2,7 +2,7 @@
 
 > 把 Apple 健康导出变成一份能看的体检报告。
 
-[![CI](https://github.com/your-name/healthkit-report/actions/workflows/ci.yml/badge.svg)](https://github.com/your-name/healthkit-report/actions/workflows/ci.yml)
+[![CI](https://github.com/little-fire9552/healthkit-report/actions/workflows/ci.yml/badge.svg)](https://github.com/little-fire9552/healthkit-report/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/healthkit-report.svg)](https://pypi.org/project/healthkit-report/)
 [![Python](https://img.shields.io/pypi/pyversions/healthkit-report.svg)](https://pypi.org/project/healthkit-report/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -48,7 +48,7 @@ pip install "healthkit-report[fast]"  # 加上 lxml，解析快 5–10 倍
 Python 3.9+。想从源码开发：
 
 ```bash
-git clone https://github.com/your-name/healthkit-report.git
+git clone https://github.com/little-fire9552/healthkit-report.git
 cd healthkit-report
 pip install -e ".[fast,dev]"
 ```
@@ -188,7 +188,7 @@ python -m build
 twine upload dist/*
 ```
 
-发布前请替换 `pyproject.toml` 中的 `authors`、`Homepage`、`Issues` 以及 README 徽章里的 `your-name`。
+发布前请替换 `pyproject.toml` 中的 `authors`、`Homepage`、`Issues` 以及 README 徽章里的 `little-fire9552`。
 
 ## License
 

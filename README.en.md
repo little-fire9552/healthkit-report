@@ -4,7 +4,7 @@
 
 Turn an Apple Health export into a readable health report — without the double counting.
 
-[![CI](https://github.com/your-name/healthkit-report/actions/workflows/ci.yml/badge.svg)](https://github.com/your-name/healthkit-report/actions/workflows/ci.yml)
+[![CI](https://github.com/little-fire9552/healthkit-report/actions/workflows/ci.yml/badge.svg)](https://github.com/little-fire9552/healthkit-report/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 ## Why
