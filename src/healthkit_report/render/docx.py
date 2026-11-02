@@ -375,16 +375,22 @@ def _interpretation(findings: Dict, refs: Dict[str, Reference]) -> Dict[str, str
             f"{sleep['lt7'] * 100:.0f}% 的夜晚不足 7 小时；深睡 {sleep['deep']:.1f} 小时"
             f"（{sleep['deep_share'] * 100:.0f}%），REM {sleep['rem']:.1f} 小时"
             f"（{sleep['rem_share'] * 100:.0f}%）。"
+            + (f"另有 {sleep['naps']} 段短于 3 小时的睡眠（合计 {sleep['nap_hours']:.1f} 小时），"
+               "按午睡处理，未计入夜间均值。" if sleep.get("naps") else "")
         )
     vo2 = metrics.get("vo2max")
     if vo2:
         ref = refs.get("vo2max")
         bound = f"；参考下限为{ref.text}" if ref and ref.low is not None else ""
-        if ref and ref.low is not None and vo2["mean"] < ref.low:
-            verdict = "是本次最需要投入的指标：它对有氧训练量非常敏感，8–12 周的系统训练通常能提升 3–5 点。"
-        else:
-            verdict = ("高于同龄第 25 百分位，仍有提升空间：它对有氧训练量非常敏感，"
+        grade = ref.grade(vo2["mean"]) if ref else ""
+        if grade == "偏低":
+            verdict = ("低于同龄第 20 百分位（Apple 判定的偏低区间），是本次最需要投入的指标："
+                       "它对有氧训练量非常敏感，8–12 周的系统训练通常能提升 3–5 点。")
+        elif grade == "正常偏低":
+            verdict = ("处于同龄第 20–25 百分位之间，不算低但仍有提升空间："
                        "系统训练 8–12 周通常能提升 3–5 点。")
+        else:
+            verdict = "高于同龄第 25 百分位，属于本次数据里相对健康的一项。"
         paragraphs["vo2"] = (
             f"VO₂max 估算 {vo2['mean']:.1f} mL/min·kg（范围 {vo2['min']:.1f}–{vo2['max']:.1f}{bound}），"
             + verdict
@@ -687,6 +693,10 @@ def build_report(
                                 "睡眠按醒来日期归档。")
     builder.bullet("参考范围：", "BMI 采用中国成人标准，睡眠采用 AASM 推荐，VO₂max 采用 FRIEND 百分位，"
                                 "听音安全采用 WHO-ITU 标准。")
+    offsets = meta.get("utc_offsets") or []
+    if len(offsets) > 1:
+        builder.bullet("时区提示：", f"数据里出现过 {' / '.join(offsets)} 多个时区，"
+                                    "跨时区当天按记录本地日期归档，可能有一天的偏差。")
     builder.bullet("主要局限：", "设备更换前的数据不完整；手表指标为估算值；单导联心电图仅作筛查；"
                                 "无血压、体重序列与临床检验数据。")
 
@@ -711,7 +721,8 @@ def _audio_grade(findings: Dict) -> str:
     """Grade cumulative headphone exposure against the WHO-ITU weekly allowance."""
 
     audio = findings.get("audio", {}).get("hp_audio") or {}
-    days = (findings.get("coverage") or {}).get("days_with_heart_rate") or 0
+    # Audio exposure comes from the iPhone, not the watch: use the whole span.
+    days = (findings.get("coverage") or {}).get("days") or 0
     if not audio or not days:
         return "参考"
     weeks = max(days / 7.0, 1.0)

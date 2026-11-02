@@ -351,6 +351,7 @@ def parse_export(
     workouts: List[Dict] = []
     activity: List[Dict] = []
     devices: Dict[str, int] = {}
+    offsets: set = set()
 
     # Opened by hand on purpose: iterparse must stream while the file stays open,
     # and the whole loop lives outside any `with` block.
@@ -362,6 +363,8 @@ def parse_export(
             start = el.get("startDate") or ""
             if (since and start[:10] < since) or (until and start[:10] > until):
                 continue
+            if len(start) >= 5:
+                offsets.add(start[-5:])
             device = el.get("device") or ""
             if device:
                 devices[device] = devices.get(device, 0) + 1
@@ -390,6 +393,11 @@ def parse_export(
         if record["asleep"] <= 0.5:  # a handful of minutes is a nap or bad data
             continue
         day = daily.setdefault(night, {})
+        if record["asleep"] < 3.0:
+            # Under three hours is a nap, not a night: keep it out of sleep_h so it
+            # does not drag the nightly average down.
+            day["nap_h"] = record["asleep"]
+            continue
         day["sleep_h"] = record["asleep"]
         day["deep_h"] = record["deep"]
         day["rem_h"] = record["rem"]
@@ -420,6 +428,7 @@ def parse_export(
                         for k, v in into["meta_source"].items()},
             "devices": dict(sorted(devices.items(), key=lambda kv: -kv[1])[:12]),
             "device_priority": priority.patterns,
+            "utc_offsets": sorted(offsets),
             "since": since,
             "until": until,
         },

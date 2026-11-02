@@ -121,7 +121,8 @@ def analyze(dataset: Dict) -> Dict:
         }
 
     # ---- sleep -------------------------------------------------------------
-    nights = {d: rec for d, rec in dataset.get("sleep", {}).items() if rec.get("asleep", 0) > 0.5}
+    nights = {d: rec for d, rec in dataset.get("sleep", {}).items() if rec.get("asleep", 0) >= 3.0}
+    naps = {d: rec for d, rec in dataset.get("sleep", {}).items() if 0.5 < rec.get("asleep", 0) < 3.0}
     if nights:
         durations = [rec["asleep"] for rec in nights.values()]
         stats = describe(durations) or {}
@@ -151,6 +152,8 @@ def analyze(dataset: Dict) -> Dict:
             "wake_median": sorted(wake)[len(wake) // 2] if wake else None,
             "weekday": sum(weekday) / len(weekday) if weekday else None,
             "weekend": sum(weekend) / len(weekend) if weekend else None,
+            "naps": len(naps),
+            "nap_hours": sum(rec["asleep"] for rec in naps.values()),
             "by_month": {
                 month: sum(rec["asleep"] for d, rec in nights.items() if d.startswith(month))
                 / max(1, sum(1 for d in nights if d.startswith(month)))

@@ -53,10 +53,18 @@ class Reference:
     advice: str = ""
     digits: int = 0
     note: str = ""
+    #: Ascending (upper bound, label) pairs; the first bound the value falls under
+    #: wins. Used where a single cut-off would be misleading (e.g. VO2max).
+    bands: Optional[List[tuple]] = None
 
     def grade(self, value: Optional[float]) -> str:
         if value is None:
             return UNDETECTED
+        if self.bands:
+            for bound, label in self.bands:
+                if value < bound:
+                    return label
+            return NORMAL
         if self.low is not None and value < self.low:
             return self.low_label
         if self.high is not None and value > self.high:
@@ -72,12 +80,40 @@ GROUPS = ["一般情况", "生命体征", "心血管功能", "心肺适能", "�
 
 #: 25th percentile of V̇O2max (mL·kg⁻¹·min⁻¹) from the FRIEND treadmill cohort,
 #: keyed by sex and the lower bound of each age decade (Kaminsky et al., 2015).
+FRIEND_P10: Dict[tuple, float] = {
+    ("男", 20): 32.1, ("男", 30): 30.2, ("男", 40): 26.8,
+    ("男", 50): 22.8, ("男", 60): 19.8, ("男", 70): 17.1,
+    ("女", 20): 23.9, ("女", 30): 20.9, ("女", 40): 18.8,
+    ("女", 50): 17.3, ("女", 60): 14.6, ("女", 70): 13.6,
+}
+
 FRIEND_P25: Dict[tuple, float] = {
     ("男", 20): 40.1, ("男", 30): 35.9, ("男", 40): 31.9,
     ("男", 50): 27.1, ("男", 60): 23.7, ("男", 70): 20.4,
     ("女", 20): 30.5, ("女", 30): 25.3, ("女", 40): 22.1,
     ("女", 50): 19.9, ("女", 60): 17.2, ("女", 70): 15.6,
 }
+
+
+def friend_percentile(sex: str, age: Optional[int], percentile: int) -> Optional[float]:
+    """Interpolate a FRIEND V̇O2max percentile (10, 20 or 25) for a sex/age pair.
+
+    Apple treats the bottom 20% as low; the 25th percentile is a stricter
+    "below average" line. Linear interpolation between the tabulated 10th and
+    25th percentiles gives the 20th percentile.
+    """
+
+    if sex not in ("男", "女") or age is None or percentile not in (10, 20, 25):
+        return None
+    decade = 20 + max(0, min(5, (age - 20) // 10)) * 10
+    p10, p25 = FRIEND_P10.get((sex, decade)), FRIEND_P25.get((sex, decade))
+    if p10 is None or p25 is None:
+        return None
+    if percentile == 10:
+        return p10
+    if percentile == 25:
+        return p25
+    return p10 + (p25 - p10) * (percentile - 10) / 15.0
 
 
 def friend_p25(sex: str, age: Optional[int]) -> Optional[float]:
@@ -96,11 +132,16 @@ def default_references(sex: str = "", age: Optional[int] = None) -> List[Referen
     when ``sex``/``age`` are supplied; otherwise neutral defaults are kept.
     """
 
-    vo2_low, vo2_text = 40.1, "成人第 25 百分位 40.1"
-    percentile = friend_p25(sex, age)
-    if percentile is not None:
-        vo2_low = percentile
-        vo2_text = f"同龄{sex}性第 25 百分位 {percentile:.1f}"
+    # Apple calls the bottom quintile "low"; the 25th percentile is "below average".
+    p20 = friend_percentile(sex, age, 20)
+    p25 = friend_percentile(sex, age, 25)
+    if p20 is None or p25 is None:
+        p20, p25 = 37.4, 40.1
+        vo2_text, vo2_bands = "成人第 20 百分位约 37.4", [ (37.4, "偏低"), (40.1, "正常偏低") ]
+    else:
+        vo2_text = f"{p20:.1f}（同龄{sex}性第 20 百分位）"
+        vo2_bands = [(p20, "偏低"), (p25, "正常偏低")]
+    vo2_low = p20
     waist_high, waist_text = (85, "女 <85 cm") if sex == "女" else (90, "男 <90 cm")
 
     return [
@@ -159,6 +200,7 @@ def default_references(sex: str = "", age: Optional[int] = None) -> List[Referen
             "vo2max", "VO₂max 估算", "VO₂ max estimate", "心肺适能", "mL/min/kg",
             low=vo2_low, text=vo2_text, source="FRIEND / Apple 心肺适能",
             digits=1, advice="每周 3 次 30 分钟低强度有氧，8 周后复测。",
+            bands=vo2_bands,
         ),
         Reference(
             "sleep_h", "平均睡眠时长", "Sleep duration", "睡眠", "小时",

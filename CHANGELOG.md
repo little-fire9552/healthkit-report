@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2026-11-02
+
+### Added
+
+- 短于 3 小时的睡眠按「午睡」处理，不再计入夜间均值；报告会单独说明午睡次数与时长。
+- VO₂max 改为三段分级（偏低 / 正常偏低 / 正常），阈值按性别与年龄取 FRIEND 第 20 与第 25 百分位，
+  与 Apple「最低 20%」的口径一致。
+- 解析时记录数据中出现过的 UTC 偏移，跨时区时报告会给出提示。
+
+### Fixed
+
+- 听力暴露的周剂量按全部监测天数折算（此前按手表佩戴天数，会高估暴露量）。
+- 身高、体重在封面与表格中统一取最近一次测量。
+
 ## [0.1.2] - 2026-11-02
 
 ### Fixed

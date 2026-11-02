@@ -120,3 +120,34 @@ class MeasurementConsistencyTests(unittest.TestCase):
         female_21 = {r.key: r for r in default_references(sex="女", age=21)}["vo2max"]
         self.assertEqual(male_21.grade(33.7), "偏低")
         self.assertEqual(female_21.grade(33.7), "正常")
+
+
+class SleepAndGradingTests(unittest.TestCase):
+    def test_short_sleep_counts_as_nap(self):
+        from healthkit_report.analysis import analyze
+
+        dataset = {
+            "meta": {},
+            "daily": {"2024-01-02": {"sleep_h": 7.0, "steps": 8000},
+                      "2024-01-03": {"nap_h": 1.5, "steps": 7000}},
+            "sleep": {"2024-01-02": {"asleep": 7.0, "deep": 1.0, "rem": 1.5, "core": 4.5,
+                                     "awake": 0.2, "inbed": 7.5, "start": "2024-01-02 23:00:00 +0800",
+                                     "end": "2024-01-03 06:30:00 +0800"},
+                      "2024-01-03": {"asleep": 1.5, "deep": 0.2, "rem": 0.3, "core": 1.0,
+                                     "awake": 0.0, "inbed": 1.5, "start": "2024-01-03 13:00:00 +0800",
+                                     "end": "2024-01-03 14:30:00 +0800"}},
+            "workouts": [], "activity": [], "audio": {},
+        }
+        findings = analyze(dataset)
+        self.assertEqual(findings["sleep"]["n"], 1)
+        self.assertAlmostEqual(findings["sleep"]["mean"], 7.0, delta=0.01)
+        self.assertEqual(findings["sleep"]["naps"], 1)
+        self.assertAlmostEqual(findings["sleep"]["nap_hours"], 1.5, delta=0.01)
+
+    def test_vo2max_bands(self):
+        from healthkit_report.references import default_references
+
+        ref = {r.key: r for r in default_references(sex="男", age=21)}["vo2max"]
+        self.assertEqual(ref.grade(38.3), "正常偏低")  # 37.4–40.1
+        self.assertEqual(ref.grade(36.0), "偏低")      # < 37.4
+        self.assertEqual(ref.grade(45.0), "正常")
