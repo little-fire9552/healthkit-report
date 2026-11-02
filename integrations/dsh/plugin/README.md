@@ -4,20 +4,18 @@
 
 安装后，DSH 里会多出一个 `healthkit_report` 工具。
 
-## 别人怎么用（两步）
+## 别人怎么用
 
-1. 装 Python 程序（真正干活的部分）：
+插件自带 Python 源码（`./python`），别人只需要装两个第三方库：
 
-   ```bash
-   pip install git+https://github.com/your-name/healthkit-report
-   # 或者已经发布到 PyPI 之后：
-   pip install healthkit-report
-   ```
+```bash
+python3 -m pip install python-docx XlsxWriter
+```
 
-2. 在 DSH 里装插件：
+然后在 DSH 里装插件：
 
    - 打开左侧 **插件** → 右上角 **添加插件**；
-   - 粘贴本仓库地址：`https://github.com/your-name/dsh-healthkit-report`
+   - 粘贴本仓库地址或本地目录的绝对路径；
    - 安装完成后，插件列表出现「Apple 健康报告」。
 
 ## 用法

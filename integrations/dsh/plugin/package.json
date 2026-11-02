@@ -21,7 +21,8 @@
     "cordis.patch.yml",
     "locale/*.json",
     "icon.svg",
-    "README.md"
+    "README.md",
+    "python/**"
   ],
   "repository": {
     "type": "git",
@@ -32,5 +33,9 @@
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
+  },
+  "scripts": {
+    "build": "node scripts/copy-python.mjs",
+    "prepack": "node scripts/copy-python.mjs"
   }
 }

@@ -1,4 +1,7 @@
 import { execFile } from "node:child_process";
+import { existsSync, readdirSync } from "node:fs";
+import { delimiter, dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineTool } from "@deepseek-ai/dsh-tools";
 
 /**
@@ -45,6 +48,38 @@ function buildArgs(args) {
   return { action, argv };
 }
 
+/**
+ * Prefer the Python that ships with DeepSeek Harness: it is the one users can
+ * install python-docx into without fighting macOS's system Python.
+ */
+function defaultPython() {
+  const home = process.env.DSH_HOME;
+  if (home) {
+    try {
+      const root = join(home, "dsh-runtimes");
+      for (const entry of readdirSync(root)) {
+        const candidate = join(root, entry, "dependencies", "python", "bin", "python3");
+        if (existsSync(candidate)) return candidate;
+      }
+    } catch {
+      // fall through to PATH
+    }
+  }
+  return "python3";
+}
+
+/**
+ * The published package bundles the Python source under ./python so users only
+ * need python-docx / XlsxWriter; prepend it to PYTHONPATH when present.
+ */
+function pythonPath() {
+  const here = dirname(fileURLToPath(import.meta.url));
+  const bundled = join(here, "python");
+  const parts = [process.env.PYTHONPATH].filter(Boolean);
+  if (existsSync(bundled)) parts.unshift(bundled);
+  return parts.join(delimiter);
+}
+
 function runPython(command, argv, { cwd, timeoutMs, signal }) {
   return new Promise((resolve, reject) => {
     const child = execFile(
@@ -55,7 +90,7 @@ function runPython(command, argv, { cwd, timeoutMs, signal }) {
         timeout: timeoutMs,
         maxBuffer: 32 * 1024 * 1024,
         signal,
-        env: process.env,
+        env: { ...process.env, PYTHONPATH: pythonPath() },
       },
       (error, stdout, stderr) => {
         if (error && error.killed) {
@@ -148,7 +183,7 @@ function healthkitTool() {
     },
     async execute(args, exec) {
       const { action, argv } = buildArgs(args);
-      const python = args.python || process.env.HEALTHKIT_PYTHON || "python3";
+      const python = args.python || process.env.HEALTHKIT_PYTHON || defaultPython();
       const result = await runPython(python, argv, {
         cwd: args.cwd,
         timeoutMs: 30 * 60 * 1000,
