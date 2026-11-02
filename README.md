@@ -188,7 +188,7 @@ python -m build
 twine upload dist/*
 ```
 
-发布前请替换 `pyproject.toml` 中的 `authors`、`Homepage`、`Issues` 以及 README 徽章里的 `little-fire9552`。
+发布前请确认 `pyproject.toml` 中的 `authors`、`Homepage`、`Issues` 是你的信息；仓库地址已指向 `little-fire9552`。
 
 ## License
 
