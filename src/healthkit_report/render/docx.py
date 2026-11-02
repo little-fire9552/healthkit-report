@@ -460,7 +460,7 @@ def build_report(
     run = first.add_run("本次数据回顾未见急性异常，生命体征总体平稳；主要问题为可干预的功能性指标。")
     builder.font(run, 10.5, False, DARK)
 
-    attention = [row for row in _grade_rows(refs, values) if row["severity"] >= 1]
+    attention = [row for row in _grade_rows(refs, values) if row["severity"] >= 2]
     for label, text, color in (
         ("近 3 个月趋势  ", _trend_sentence(findings), GREEN),
         ("需要重点关注  ", "；".join(row["label"] for row in attention[:4]) or "无", AMBER),

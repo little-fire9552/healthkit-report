@@ -18,7 +18,21 @@ CRITICAL = "临界"
 UNDETECTED = "未检测"
 
 #: Grade → severity used for colouring and sorting.
-SEVERITY = {NORMAL: 0, CRITICAL: 1, LOW: 2, HIGH: 2, ATTENTION: 2, UNDETECTED: -1}
+SEVERITY = {
+    NORMAL: 0,
+    "参考": 0,
+    UNDETECTED: -1,
+    "正常偏高": 1,
+    "正常偏低": 1,
+    "不规律": 1,
+    CRITICAL: 1,
+    LOW: 2,
+    HIGH: 2,
+    ATTENTION: 2,
+    "不足": 2,
+    "偏慢": 2,
+    "需注意": 2,
+}
 
 
 @dataclass
