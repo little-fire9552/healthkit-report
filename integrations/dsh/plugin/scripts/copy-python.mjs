@@ -15,15 +15,20 @@ const candidates = [
   join(root, "..", "..", "..", "src", "healthkit_report"),
 ].filter(Boolean);
 
+const target = join(root, "python", "healthkit_report");
 const source = candidates.find((path) => existsSync(join(path, "__init__.py")));
 if (!source) {
+  // Standalone plugin repo: python/ is committed, so packing works without the source tree.
+  if (existsSync(join(target, "__init__.py"))) {
+    console.log("[copy-python] using the committed python/ copy");
+    process.exit(0);
+  }
   console.error("[copy-python] cannot find healthkit_report source. Tried:");
   for (const path of candidates) console.error(`  - ${path}`);
   console.error("Set HEALTHKIT_SRC=/path/to/src/healthkit_report and retry.");
   process.exit(1);
 }
 
-const target = join(root, "python", "healthkit_report");
 rmSync(join(root, "python"), { recursive: true, force: true });
 cpSync(source, target, { recursive: true, filter: (path) => !path.includes("__pycache__") });
 console.log(`[copy-python] ${source} -> ${target}`);
