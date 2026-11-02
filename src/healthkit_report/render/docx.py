@@ -8,6 +8,7 @@ prose interpretation, an attention list, a follow-up plan, and methodology.
 from __future__ import annotations
 
 import os
+import sys
 from dataclasses import replace
 from datetime import date
 from typing import Dict, List, Optional, Sequence, Tuple
@@ -29,7 +30,14 @@ from ..references import (
     profile_from_dataset,
 )
 
-FONT = "PingFang SC"
+#: Chinese font per platform; Word substitutes when the name is missing, but an
+#: explicit Windows/Linux name keeps the layout close to what we tested.
+if sys.platform == "win32":
+    FONT = "Microsoft YaHei"
+elif sys.platform == "darwin":
+    FONT = "PingFang SC"
+else:
+    FONT = "Noto Sans CJK SC"
 
 NAVY = RGBColor(0x1F, 0x38, 0x64)
 BLUE = RGBColor(0x2E, 0x75, 0xB6)

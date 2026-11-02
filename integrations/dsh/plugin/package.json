@@ -1,6 +1,6 @@
 {
   "name": "dsh-healthkit-report",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Apple Health export analysis for DeepSeek Harness: parse export.xml, de-duplicate device records, build DOCX/XLSX/HTML reports.",
   "type": "module",
   "license": "MIT",
@@ -36,5 +36,10 @@
   "scripts": {
     "build": "node scripts/copy-python.mjs",
     "prepack": "node scripts/copy-python.mjs"
-  }
+  },
+  "os": [
+    "darwin",
+    "win32",
+    "linux"
+  ]
 }

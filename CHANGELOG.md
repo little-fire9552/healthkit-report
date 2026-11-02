@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.1] - 2026-11-02
+
+### Added
+
+- Windows support: the DSH plugin now finds `python.exe` in the runtime layout,
+  forces UTF-8 for child output, and the report uses a platform-appropriate
+  Chinese font (Microsoft YaHei / PingFang SC / Noto Sans CJK SC).
+- `安装.bat` alongside `安装.command` in the standalone share package.
+
+### Fixed
+
+- The plugin falls back to the DSH runtime interpreter when `DSH_HOME` is not
+  exported by the desktop process.
+
 ## [0.1.0] - 2026-11-02
 
 ### Added

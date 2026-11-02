@@ -45,7 +45,7 @@ pip install healthkit-report          # 基础依赖：python-docx、XlsxWriter
 pip install "healthkit-report[fast]"  # 加上 lxml，解析快 5–10 倍
 ```
 
-Python 3.9+。想从源码开发：
+Python 3.9+，支持 macOS / Windows / Linux（报告字体会按平台自动选择）。想从源码开发：
 
 ```bash
 git clone https://github.com/little-fire9552/healthkit-report.git

@@ -54,6 +54,12 @@ python3 -m pip install python-docx XlsxWriter
 
 或者在插件调用时传 `python=/path/to/python3`。
 
+## 平台
+
+支持 macOS、Windows、Linux。插件会自动寻找 DSH 自带的 Python（macOS 下是
+`dependencies/python/bin/python3`，Windows 下是 `dependencies/python/python.exe` 或
+`Scripts/python.exe`），找不到再退回 PATH 里的 `python3` / `python`。
+
 ## 开发
 
 ```bash

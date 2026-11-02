@@ -57,18 +57,26 @@ function defaultPython() {
   // The Electron main process does not always export DSH_HOME, so fall back to
   // the documented default location instead of trusting PATH.
   const home = process.env.DSH_HOME || join(homedir(), ".dsh");
+  const win = process.platform === "win32";
+  // macOS/Linux bundle python3 under bin/; the Windows runtime ships python.exe
+  // either at the root or under Scripts/.
+  const layouts = win
+    ? [["python.exe"], ["Scripts", "python.exe"], ["bin", "python.exe"]]
+    : [["bin", "python3"], ["bin", "python"]];
   if (home) {
     try {
       const root = join(home, "dsh-runtimes");
       for (const entry of readdirSync(root)) {
-        const candidate = join(root, entry, "dependencies", "python", "bin", "python3");
-        if (existsSync(candidate)) return candidate;
+        for (const parts of layouts) {
+          const candidate = join(root, entry, "dependencies", "python", ...parts);
+          if (existsSync(candidate)) return candidate;
+        }
       }
     } catch {
       // fall through to PATH
     }
   }
-  return "python3";
+  return win ? "python" : "python3";
 }
 
 /**
@@ -93,7 +101,7 @@ const MISSING_DEP = /No module named '(docx|healthkit_report|xlsxwriter)'/;
 async function runWithFallback(python, argv, options) {
   const first = await runPython(python, argv, options);
   if (first.exitCode === 0 || !MISSING_DEP.test(first.stderr)) return first;
-  for (const candidate of [defaultPython(), "python3"]) {
+  for (const candidate of [defaultPython(), process.platform === "win32" ? "python" : "python3"]) {
     if (candidate === python) continue;
     const retry = await runPython(candidate, argv, options);
     if (retry.exitCode === 0) {
@@ -114,7 +122,13 @@ function runPython(command, argv, { cwd, timeoutMs, signal }) {
         timeout: timeoutMs,
         maxBuffer: 32 * 1024 * 1024,
         signal,
-        env: { ...process.env, PYTHONPATH: pythonPath() },
+        env: {
+          ...process.env,
+          PYTHONPATH: pythonPath(),
+          // Keep Chinese output readable when the child prints to a GBK console.
+          PYTHONIOENCODING: "utf-8",
+          PYTHONUTF8: "1",
+        },
       },
       (error, stdout, stderr) => {
         if (error && error.killed) {

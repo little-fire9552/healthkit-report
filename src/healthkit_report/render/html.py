@@ -12,7 +12,7 @@ _HTML = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <style>
-body{{font-family:-apple-system,"PingFang SC","Helvetica Neue",Arial,sans-serif;margin:0;background:#f6f8fb;color:#1f2937}}
+body{{font-family:-apple-system,"PingFang SC","Microsoft YaHei","Segoe UI","Helvetica Neue",Arial,sans-serif;margin:0;background:#f6f8fb;color:#1f2937}}
 .wrap{{max-width:980px;margin:0 auto;padding:28px 20px 60px}}
 h1{{font-size:24px;margin:0 0 6px}} .sub{{color:#6b7280;font-size:13px;margin-bottom:22px}}
 .cards{{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:26px}}
